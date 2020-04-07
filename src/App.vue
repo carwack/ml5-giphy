@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <loading v-if="!isModelLoaded"></loading>
     <div class="content columns">
       <div class="upload-wrapper column is-half">
       </div>
@@ -18,14 +19,17 @@
 
 <script>
 import ml5 from 'ml5'
+import Loading from './components/Loading.vue'
 
 export default {
   name: 'App',
   components: {
+    Loading
   },
   data() {
     return {
-      classifier: {}
+      classifier: {},
+      isModelLoaded: false
     }
   },
   mounted: function() {
@@ -34,6 +38,7 @@ export default {
   methods: {
     modelLoaded: function() {
       console.log('Model Loaded!')
+      this.isModelLoaded = true
     }
   }
 }
