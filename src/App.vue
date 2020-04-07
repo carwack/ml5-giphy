@@ -27,8 +27,12 @@
           </label>
         </div>
       </div>
-      <div class="result-wrapper column">
+      <div class="result-wrapper column"  v-show="img">
         <div class="giphy-wrapper">
+          <div class="giphy-wrapper">
+            <img :src="result.giphy" :alt="result.alt" />
+            <a :href="result.giphyUrl">via GIPHY</a>
+          </div>
         </div>
       </div>
     </div>
@@ -42,6 +46,8 @@
 
 <script>
 import ml5 from 'ml5'
+import axios from 'axios'
+
 import Loading from './components/Loading.vue'
 
 export default {
@@ -55,7 +61,10 @@ export default {
       isModelLoaded: false,
       result: {
         label: '',
-        confidence: 0
+        confidence: 0,
+        giphy: '',
+        giphyUrl: '',
+        alt: ''
       },
       img: '',
       imgName: 'Upload an image to start'
@@ -78,6 +87,7 @@ export default {
           console.log(results)
           this.result.label = results[0].label
           this.result.confidence = (results[0].confidence * 100).toFixed(2)
+          this.getGiphy()
         }
       })
     },
@@ -91,6 +101,25 @@ export default {
         this.classify()
       }
     },
+    getGiphy: function() {
+      // https://developers.giphy.com/docs/sdk/#web
+      const url = 'https://api.giphy.com/v1/gifs/search?api_key=gnHx8iIxLiE3MLUDnVWJ6pcWDlI8LGqL&limit=1&q='
+      this.result.giphy = require('@/assets/timer.svg')
+      this.result.alt = 'loading gif'
+      this.result.giphyUrl = ''
+      axios
+        .get(url + this.result.label + '&offset=' + Math.floor(Math.random() * 100 + 1))
+        .then((response) => {
+          const responseData = response.data.data[0]
+          console.log(responseData)
+          this.result.giphy = responseData.images.original.url
+          this.result.alt = responseData.title
+          this.result.giphyUrl = responseData.url
+        })
+        .catch((e) => {
+          this.errors.push(e)
+        })
+    }
   }
 }
 </script>
@@ -120,9 +149,10 @@ body {
     align-items: center;
     justify-content: center;
     .giphy-wrapper {
-      max-width: 70%;
+      max-width: 80%;
       display: flex;
       flex-direction: column;
+      align-items: center;
       img {
         max-width: 100%;
         max-height: 70vh;
