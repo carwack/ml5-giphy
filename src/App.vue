@@ -17,9 +17,24 @@
 </template>
 
 <script>
+import ml5 from 'ml5'
+
 export default {
   name: 'App',
   components: {
+  },
+  data() {
+    return {
+      classifier: {}
+    }
+  },
+  mounted: function() {
+    this.classifier = ml5.imageClassifier('MobileNet', this.modelLoaded)
+  },
+  methods: {
+    modelLoaded: function() {
+      console.log('Model Loaded!')
+    }
   }
 }
 </script>
