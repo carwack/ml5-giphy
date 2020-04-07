@@ -3,6 +3,13 @@
     <loading v-if="!isModelLoaded"></loading>
     <div class="content columns">
       <div class="upload-wrapper column is-half">
+        <div class="image-wrapper">
+          <img ref="image" alt="Vue logo" src="@/assets/logo.png" />
+          <div class="results">
+            {{ result.label }}
+            {{ result.confidence }}%
+          </div>
+        </div>
       </div>
       <div class="result-wrapper column">
         <div class="giphy-wrapper">
@@ -29,7 +36,11 @@ export default {
   data() {
     return {
       classifier: {},
-      isModelLoaded: false
+      isModelLoaded: false,
+      result: {
+        label: '',
+        confidence: 0
+      }
     }
   },
   mounted: function() {
@@ -39,7 +50,19 @@ export default {
     modelLoaded: function() {
       console.log('Model Loaded!')
       this.isModelLoaded = true
-    }
+      this.classify()
+    },
+    classify: function() {
+      this.classifier.classify(this.$refs.image, (err, results) => {
+        if (err) {
+          console.error(err)
+        } else {
+          console.log(results)
+          this.result.label = results[0].label
+          this.result.confidence = (results[0].confidence * 100).toFixed(2)
+        }
+      })
+    },
   }
 }
 </script>
