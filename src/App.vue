@@ -3,12 +3,28 @@
     <loading v-if="!isModelLoaded"></loading>
     <div class="content columns">
       <div class="upload-wrapper column is-half">
-        <div class="image-wrapper">
-          <img ref="image" alt="Vue logo" src="@/assets/logo.png" />
+        <div class="image-wrapper" v-show="img">
+           <img ref="image" alt="Uploaded image" :src="img" />
           <div class="results">
             {{ result.label }}
             {{ result.confidence }}%
           </div>
+        </div>
+        <div class="file has-name is-boxed">
+          <label class="file-label">
+            <input class="file-input" type="file" name="uploadImage" @change="uploadImage" />
+            <span class="file-cta">
+              <span class="file-icon">
+                <img src="@/assets/_ionicons_svg_md-cloud-upload.svg" alt="Upload icon" />
+              </span>
+              <span class="file-label">
+                Choose a file...
+              </span>
+            </span>
+            <span class="file-name">
+              {{ imgName }}
+            </span>
+          </label>
         </div>
       </div>
       <div class="result-wrapper column">
@@ -40,7 +56,9 @@ export default {
       result: {
         label: '',
         confidence: 0
-      }
+      },
+      img: '',
+      imgName: 'Upload an image to start'
     }
   },
   mounted: function() {
@@ -50,9 +68,9 @@ export default {
     modelLoaded: function() {
       console.log('Model Loaded!')
       this.isModelLoaded = true
-      this.classify()
     },
     classify: function() {
+      // https://github.com/ml5js/ml5-library/blob/development/src/utils/IMAGENET_CLASSES.js
       this.classifier.classify(this.$refs.image, (err, results) => {
         if (err) {
           console.error(err)
@@ -62,6 +80,16 @@ export default {
           this.result.confidence = (results[0].confidence * 100).toFixed(2)
         }
       })
+    },
+    uploadImage: function(event) {
+      const image = event.target.files[0]
+      const reader = new FileReader()
+      this.imgName = event.target.files[0].name
+      reader.readAsDataURL(image)
+      reader.onload = (e) => {
+        this.img = e.target.result
+        this.classify()
+      }
     },
   }
 }
